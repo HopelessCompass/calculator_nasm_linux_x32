@@ -81,7 +81,7 @@ get_second_number:
     call stdout_prep
     mov ecx, prompt2 ; сохраняем в регистре сообщение для вывода в терминал
     mov edx, prompt2_len ; сохраняем в регистре ДЛИНУ сообщения для вывода в терминал
-    call_kernel ; вызов ядра
+    call call_kernel ; вызов ядра
 
     mov input, second ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
 
