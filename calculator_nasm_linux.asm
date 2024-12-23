@@ -128,11 +128,19 @@ first_ascii_to_number:
 
     call convert_loop
 
+    mov first, converted ; после конвертации переназначаем переменную
+    ret
+
 second_ascii_to_number:
     mov esi, second ; указатель на начало строки
     xor eax, eax ; очищаем регистр EAX для числа
 
     call convert_loop
+
+    mov second, converted ; после конвертации переназначаем переменную
+    ret
+
+
 
 ; convert_loop и done_conversion - две части функции по переводу строки в число
 
