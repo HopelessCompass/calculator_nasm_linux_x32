@@ -2,6 +2,7 @@ section .bss
     first db 7 ; Первое число длиной 5 символов в формате строки
     second db 7 ; Второе число длиной 5 символов в формате строки
     len db 0 ; Длина введенной строки для преобразования строки в число
+    input db 0 ; Временное значеие для перевода числа в стпрку
 
     converted dd 0 ; Результат вычислений УЖЕ в формате числа
 
@@ -30,8 +31,8 @@ mov edx, hello_len ; сохраняем в регистре ДЛИНУ сооб�
 int 0x80 ; вызов ядра
 
 ; Запрос двух чисел
-call calc_first
-call calc_second
+call get_first_number
+call get_second_number
 ; Переделать по следующему алгоритму
 ; 1. Ввод первого числа
 ; 2. Перевод первого числа из ASCI в числовой формат
@@ -49,13 +50,13 @@ int 0x80            ; Вызов ядра
 
 greetings:
     ; Пишем строку в stdout
-    call output
+    ; call output
     mov ecx, hello      ; Адрес строки
     mov edx, hello_len  ; Длина строки
     int 0x80            ; Вызов ядра
     ret
 
-calc_first:
+get_first_number:
     ; выводим сообщение с просьбой ввода первого числа из переменной
     mov eax, 4 ; Номер системного вызова: sys_write
     mov ebx, 1 ; Дескриптор файла: 1 (stdout)
@@ -63,17 +64,21 @@ calc_first:
     mov edx, prompt1_len ; сохраняем в регистре ДЛИНУ сообщения для вывода в терминал
     int 0x80 ; вызов ядра
 
+    mov input, first ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
+
     call read_from_stdin
     call first_ascii_to_number
     ret
 
-calc_second:
+get_second_number:
     ; выводим сообщение с просьбой ввода первого числа из переменной
     mov eax, 4 ; Номер системного вызова: sys_write
     mov ebx, 1 ; Дескриптор файла: 1 (stdout)
     mov ecx, prompt2 ; сохраняем в регистре сообщение для вывода в терминал
     mov edx, prompt2_len ; сохраняем в регистре ДЛИНУ сообщения для вывода в терминал
     int 0x80 ; вызов ядра
+
+    mov input, second ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
 
     call read_from_stdin
     call second_ascii_to_number
@@ -83,7 +88,7 @@ read_from_stdin:
     ; считать строку из stdin
     mov eax, 3 ; запрос sys_read
     mov ebx, 0 ; stdin
-    mov ecx, input ; буфер
+    mov ecx, input ; буфер, назначается из функций get... для чисел
     mov edx, 7 ; максимальная длина
     int 0x80 ; вызов ядра
     mov [len], eax ; выгрузить из регистра длину ввода
