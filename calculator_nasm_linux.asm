@@ -85,6 +85,7 @@ get_second_number:
 stdout_prep:
     mov eax, 4 ; sys_write
     mov ebx, 1 ; stdout
+    ret
 
 call_kernel:
     int 0x80 ; вызов ядра
