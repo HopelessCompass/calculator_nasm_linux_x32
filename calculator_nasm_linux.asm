@@ -96,29 +96,38 @@ read_from_stdin:
 
 multiplication:
     ; Умножение
-    mov eax, [first]; Загружаем первое число в регистр EAX из регистра RDX
-    mul [second]; Умножаем EAX на EBX с результатом в EAX
-    mov [result], eax ; сохраняем в переменной результат чтобы использовать его для вывода
+    call calc_prep
+    mul [second]; умножаем EAX на EBX с результатом в EAX
+    call result_saving
     ret
 
 addition:
     ; Сложение
-    mov eax, [first]; Загружаем первое число в регистр EAX из регистра RDX
-    add [second]; Умножаем EAX на EBX с результатом в EAX
-    mov [result], eax ; сохраняем в переменной результат чтобы использовать его для вывода
+    call calc_prep
+    add [second]; складвыаем EAX с EBX с результатом в EAX
+    call result_saving
     ret
 
 subtraction:
     ; Вычитание
-    mov eax, [first]; Загружаем первое число в регистр EAX из регистра RDX
-    sub [second]; Умножаем EAX на EBX с результатом в EAX
-    mov [result], eax ; сохраняем в переменной результат чтобы использовать его для вывода
+    call calc_prep
+    sub [second]; вычитаем EAX из EBX с результатом в EAX
+    call result_saving
     ret
 
 division:
     ; Деление
-    mov eax, [first]; Загружаем первое число в регистр EAX из регистра RDX
-    div [second]; Умножаем EAX на EBX с результатом в EAX
+    call calc_prep
+    div [second]; делим EAX на EBX с результатом в EAX
+    call result_saving
+    ret
+
+calc_prep:
+    ; Подготовка к вычислениям
+    mov eax, [first] ; Загружаем первое число в регистр из конвертированной переменной;
+    ret
+
+result_saving:
     mov [result], eax ; сохраняем в переменной результат чтобы использовать его для вывода
     ret
 
