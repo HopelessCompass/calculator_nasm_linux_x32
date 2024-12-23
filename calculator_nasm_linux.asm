@@ -87,7 +87,7 @@ stdout_prep:
     mov ebx, 1 ; stdout
 
 call_kernel:
-    call_kernel ; вызов ядра
+    int 0x80 ; вызов ядра
 
 read_from_stdin:
     ; считать строку из stdin
