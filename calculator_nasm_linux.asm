@@ -88,6 +88,7 @@ stdout_prep:
 
 call_kernel:
     int 0x80 ; вызов ядра
+    ret
 
 read_from_stdin:
     ; считать строку из stdin
