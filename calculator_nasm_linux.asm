@@ -140,8 +140,6 @@ second_ascii_to_number:
     mov second, converted ; после конвертации переназначаем переменную
     ret
 
-
-
 ; convert_loop и done_conversion - две части функции по переводу строки в число
 
 convert_loop:
@@ -156,10 +154,12 @@ convert_loop:
     inc esi ; перейти к следующему символу в строке
 
     jmp convert_loop ; если не конец, то возобновить цикл, пройти по нему заново
+    ret
 
 ; done_conversion вызывается из convert_loop для выхода из лупа
 done_conversion:
     mov [converted], eax ; сохранить результат
+    ret
 
 ; Проверить:
 ; division: что на что делит
