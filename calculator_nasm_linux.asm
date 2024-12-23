@@ -1,28 +1,26 @@
-section .bss
-    first db 7 ; Первое число длиной 5 символов в формате строки
-    second db 7 ; Второе число длиной 5 символов в формате строки
-    len db 0 ; Длина введенной строки для преобразования строки в число
-    input db 0 ; Временное значеие для перевода числа в стпрку
-    converted dd 0 ; Результат вычислений УЖЕ в формате числа
+; section .bss ; Секция переменных
 
-    result dd 0 ; Итоговый результат вычислений выводящийся в терминале
+section .data ; Секция данных
+    first dd '0'; Первое число длиной 5 символов в формате строки
+    second dd '0'; Второе число длиной 5 символов в формате строки
+    len dd 22; Длина введенной строки для преобразования строки в число
+    input dd 0; Временное значеие для перевода числа в строку
 
-section .data           ; Секция данных
-    hello db "This is a basic calculator. It can '+', '-', '*' and '/' numbers", 0xA   ; Строка с символом новой строки
+    converted dd 0; Результат вычислений УЖЕ в формате числа
+    result dd 0; Итоговый результат вычислений выводящийся в терминале
+
+    hello dd "This is a basic calculator. It can '+', '-', '*' and '/' numbers", 0xA   ; Строка с символом новой строки
     hello_len equ $ - hello        ; Вычисляем длину строки
-
-    prompt1 db "Enter first number: ", 0 ; Сообщение о первом числе
+    prompt1 dd "Enter first number: ", 0 ; Сообщение о первом числе
     prompt1_len equ $ - prompt1 ; Вычисляем длину первого запроса
-
-    prompt2 db "Enter second number ", 0 ; Сообщение о втором числе
+    prompt2 dd "Enter second number ", 0 ; Сообщение о втором числе
     prompt2_len equ $ - prompt2 ; Вычисляем длину второго запроса
-
-    condition_invalid db 'Неверно указано условие'
-    condition db '0'; Флаг-условие для выбора действия над числами
-    condition_mul db '*'
-    condition_add db '+'
-    condition_sub db '-'
-    condition_div db '/'
+    condition_invalid dd 'Неверно указано условие', 0xA
+    condition dd '0'; Флаг-условие для выбора действия над числами
+    condition_mul dd '*', 0xA
+    condition_add dd '+', 0xA
+    condition_sub dd '-', 0xA
+    condition_div dd '/', 0Xa
 
 section .text           ; Секция кода
     global _start       ; Точка входа в программу
@@ -34,7 +32,7 @@ mov eax, 4 ; Номер системного вызова: sys_write
 mov ebx, 1 ; Дескриптор файла: 1 (stdout)
 mov ecx, hello ; Сохраняем в регистре сообщение для вывода в терминал
 mov edx, hello_len ; сохраняем в регистре ДЛИНУ сообщения для вывода в терминал
-call_kernel ; вызов ядра
+call call_kernel ; вызов ядра
 
 ; Запрос двух чисел
 call get_first_number
@@ -51,16 +49,16 @@ call condition_select
 ; 8. Вывод результата
 
 ; Завершаем программу
-mov eax, 1          ; Номер системного вызова: sys_exit
-xor ebx, ebx        ; Код возврата: 0
-call call_kernel            ; Вызов ядра
+mov eax, 1 ; Номер системного вызова: sys_exit
+xor ebx, ebx ; Код возврата: 0
+call call_kernel ; Вызов ядра
 
 greetings:
     ; Пишем строку в stdout
     ; call output
-    mov ecx, hello      ; Адрес строки
-    mov edx, hello_len  ; Длина строки
-    call call_kernel            ; Вызов ядра
+    mov ecx, hello ; Адрес строки
+    mov edx, hello_len ; Длина строки
+    call call_kernel ; Вызов ядра
     ret
 
 get_first_number:
@@ -70,7 +68,7 @@ get_first_number:
     mov edx, prompt1_len ; сохраняем в регистре ДЛИНУ сообщения для вывода в терминал
     call call_kernel ; вызов ядра
 
-    mov input, first ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
+    mov dword [input], first ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
 
     call read_from_stdin
     call first_ascii_to_number
@@ -83,7 +81,7 @@ get_second_number:
     mov edx, prompt2_len ; сохраняем в регистре ДЛИНУ сообщения для вывода в терминал
     call call_kernel ; вызов ядра
 
-    mov input, second ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
+    mov dword [input], second ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
 
     call read_from_stdin
     call second_ascii_to_number
@@ -145,34 +143,34 @@ not_equal:
     ret
 
 equal:
-    mov condition, 1
+    mov dword [condition], 1
     ret
 
 multiplication:
     ; Умножение
     call calc_prep
-    mul [second]; умножаем EAX на EBX с результатом в EAX
+    mul dword [second] ; умножаем EAX на EBX с результатом в EAX
     call result_saving
     ret
 
 addition:
     ; Сложение
     call calc_prep
-    add [second]; складвыаем EAX с EBX с результатом в EAX
+    add eax, [second] ; складвыаем EAX с EBX с результатом в EAX
     call result_saving
     ret
 
-subtraction:
+substraction:
     ; Вычитание
     call calc_prep
-    sub [second]; вычитаем EAX из EBX с результатом в EAX
+    sub eax, [second] ; вычитаем EAX из EBX с результатом в EAX
     call result_saving
     ret
 
 division:
     ; Деление
     call calc_prep
-    div [second]; делим EAX на EBX с результатом в EAX
+    div dword [second] ; делим EAX на EBX с результатом в EAX
     call result_saving
     ret
 
@@ -191,7 +189,7 @@ first_ascii_to_number:
 
     call convert_loop
 
-    mov first, converted ; после конвертации переназначаем переменную
+    mov dword [first], converted ; после конвертации переназначаем переменную
     ret
 
 second_ascii_to_number:
@@ -200,7 +198,7 @@ second_ascii_to_number:
 
     call convert_loop
 
-    mov second, converted ; после конвертации переназначаем переменную
+    mov dword [second], converted ; после конвертации переназначаем переменную
     ret
 
 ; convert_loop и done_conversion - две части функции по переводу строки в число
