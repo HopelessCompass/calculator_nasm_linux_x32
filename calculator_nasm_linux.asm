@@ -3,13 +3,12 @@ section .bss
     second db 7 ; Второе число длиной 5 символов в формате строки
     len db 0 ; Длина введенной строки для преобразования строки в число
     input db 0 ; Временное значеие для перевода числа в стпрку
-
     converted dd 0 ; Результат вычислений УЖЕ в формате числа
 
-    result dd 0 ;
+    result dd 0 ; Итоговый результат вычислений выводящийся в терминале
 
 section .data           ; Секция данных
-    hello db "This is a basic calculator. It can '+', '-', '*' and '/' numbers:", 0xA   ; Строка с символом новой строки
+    hello db "This is a basic calculator. It can '+', '-', '*' and '/' numbers", 0xA   ; Строка с символом новой строки
     hello_len equ $ - hello        ; Вычисляем длину строки
 
     prompt1 db "Enter first number: ", 0 ; Сообщение о первом числе
@@ -17,6 +16,13 @@ section .data           ; Секция данных
 
     prompt2 db "Enter second number ", 0 ; Сообщение о втором числе
     prompt2_len equ $ - prompt2 ; Вычисляем длину второго запроса
+
+    condition_invalid db 'Неверно указано условие'
+    condition db '0'; Флаг-условие для выбора действия над числами
+    condition_mul db '*'
+    condition_add db '+'
+    condition_sub db '-'
+    condition_div db '/'
 
 section .text           ; Секция кода
     global _start       ; Точка входа в программу
@@ -33,6 +39,7 @@ call_kernel ; вызов ядра
 ; Запрос двух чисел
 call get_first_number
 call get_second_number
+call condition_select
 ; Переделать по следующему алгоритму
 ; 1. Ввод первого числа
 ; 2. Перевод первого числа из ASCI в числовой формат
@@ -46,14 +53,14 @@ call get_second_number
 ; Завершаем программу
 mov eax, 1          ; Номер системного вызова: sys_exit
 xor ebx, ebx        ; Код возврата: 0
-call_kernel            ; Вызов ядра
+call call_kernel            ; Вызов ядра
 
 greetings:
     ; Пишем строку в stdout
     ; call output
     mov ecx, hello      ; Адрес строки
     mov edx, hello_len  ; Длина строки
-    call_kernel            ; Вызов ядра
+    call call_kernel            ; Вызов ядра
     ret
 
 get_first_number:
@@ -61,7 +68,7 @@ get_first_number:
     call stdout_prep
     mov ecx, prompt1 ; сохраняем в регистре сообщение для вывода в терминал
     mov edx, prompt1_len ; сохраняем в регистре ДЛИНУ сообщения для вывода в терминал
-    call_kernel ; вызов ядра
+    call call_kernel ; вызов ядра
 
     mov input, first ; назначаем временной переменной input значение поля ввода для функции чтения из stdin
 
@@ -80,6 +87,7 @@ get_second_number:
 
     call read_from_stdin
     call second_ascii_to_number
+    call condition_select
     ret
 
 stdout_prep:
@@ -97,8 +105,47 @@ read_from_stdin:
     mov ebx, 0 ; stdin
     mov ecx, input ; буфер, назначается из функций get... для чисел
     mov edx, 7 ; максимальная длина
-    call_kernel ; вызов ядра
+    call call_kernel ; вызов ядра
     mov [len], eax ; выгрузить из регистра длину ввода
+    ret
+
+condition_select:
+    mov esi, condition
+    mov edi, condition_mul
+
+    call compare_strings
+    je case_mul
+    ret
+
+case_mul:
+    call multiplication
+    ret
+
+case_add:
+    call addition
+    ret
+
+case_sub:
+    call substraction
+    ret
+
+case_div:
+    call division
+    ret
+
+compare_strings:
+    mov ecx, 1 ; максимальная длина строки
+    repe cmpsb ; сравниваем байты строк
+    mov eax, 0 ; сброс результата
+    jne not_equal ; если не совпадает то выходим с ZF = 0
+    cmp byte [esi-1], 0 ; Проверяем конец строки
+    je equal ; если строки равны, устанавливаем ZF = 1
+
+not_equal:
+    ret
+
+equal:
+    mov condition, 1
     ret
 
 multiplication:
