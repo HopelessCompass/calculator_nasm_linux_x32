@@ -1,6 +1,6 @@
 # Learning Assembly a hard way.
 # It was my first project using this lang so it sucks.
-# Best way to learn programming language is starting coding with this lang
+# Best way to learn programming language is starting coding using this lang
 # P.S. Sorry 4 my bad english
 
 
