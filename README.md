@@ -1,3 +1,10 @@
+# Learning Assembly a hard way.
+# It was my first project using this lang so it sucks.
+# Best way to learn programming language is starting coding with this lang
+# P.S. Sorry 4 my bad english
+
+
+
 # calculator_nasm_linux
 Calculator on Assembly language, NASM dialect
 
